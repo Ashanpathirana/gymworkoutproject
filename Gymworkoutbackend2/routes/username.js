@@ -1,12 +1,12 @@
 const express = require('express');
 const User = require('../models/userModel');
-const authenticate = require('../middlewares/authenticate'); // Middleware to verify token
+const authenticate = require('../middlewares/authenticate'); 
 const router = express.Router();
 
 // GET /userinfo - Retrieve user information based on the token
 router.get('/userinfo', authenticate, async (req, res) => {
     try {
-        const user = await User.findById(req.userId); // `req.userId` is set by the authenticate middleware
+        const user = await User.findById(req.userId); 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
