@@ -9,9 +9,10 @@ const userRoute = require('./routes/user'); // User route
 const addWorkoutRoute = require('./routes/addWorkouts'); // Add workout route
 const progressRoute = require('./routes/progress'); // Progress route
 const User = require('./models/userModel'); // User model
-const Message = require('./models/Message'); // Message model (assuming you have this)
+const Message = require('./models/messageModel'); // Message model (assuming you have this)
 const usernameRoute = require('./routes/username');
 const userinformation = require('./routes/userinfo');
+const messageRoutes = require('./routes/message');
 
 require('dotenv').config(); // Load environment variables
 
@@ -45,7 +46,7 @@ app.use('/api/workouts', addWorkoutRoute); // Workout handling route
 app.use('/api/progress', progressRoute); // Progress handling route
 app.use('/api/user', usernameRoute);
 app.use('/api/profile', userinformation);
-
+app.use(messageRoutes);
 
 
 // Socket.io events

@@ -1,71 +1,30 @@
-// const socketio = require('socket.io');
+// socket/socketHandler.js
+const Message = require('../models/messageModel');
 
-// const Workout = require('../models/Workout');
-// // Assuming you have a model for chat messages
-// const ChatMessage = require('./models/ChatMessage'); 
+const socketHandler = (io) => {
+    io.on('connection', (socket) => {
+        console.log('A user connected');
 
-// function setupSocketIO(server) {
-//   const io = socketio(server, {
-//     cors: {
-//       origin: "http://localhost:3001",
-//       methods: ["GET", "POST"]
-//     }
-//   });
+        // Send previous messages on connection
+        Message.find().sort({ _id: 1 }).then(messages => {
+            socket.emit('previousMessages', messages);
+        });
 
-//   io.on('connection', (socket) => {
-//     console.log('New client connected:', socket.id);
+        // Handle new message
+        socket.on('sendMessage', async (message) => {
+            try {
+                const newMessage = new Message(message);
+                await newMessage.save();
+                io.emit('newMessage', newMessage);  // Emit the saved message
+            } catch (error) {
+                console.error('Error saving message:', error);
+            }
+        });
 
-//     // Handle fetching chat messages
-//     socket.on('getChatMessages', async () => {
-//       try {
-//         const messages = await ChatMessage.find(); // Fetch messages from the database
-//         socket.emit('chatMessages', messages);
-//       } catch (error) {
-//         console.error('Error fetching chat messages:', error);
-//         socket.emit('chatMessages', []);
-//       }
-//     });
+        socket.on('disconnect', () => {
+            console.log('User disconnected');
+        });
+    });
+};
 
-//     // Handle receiving a new chat message
-//     socket.on('newChatMessage', async (messageData) => {
-//       try {
-//         const newMessage = new ChatMessage(messageData);
-//         await newMessage.save();
-//         io.emit('chatMessage', messageData); // Broadcast the new message to all clients
-//       } catch (error) {
-//         console.error('Error saving chat message:', error);
-//       }
-//     });
-
-//     // Handle fetching progress data for a specific user
-//     socket.on('getProgressData', async (userId) => {
-//       try {
-//         const workouts = await Workout.find({ userId }).sort({ date: -1 });
-//         socket.emit('progressData', workouts);
-//       } catch (error) {
-//         console.error('Error fetching progress data:', error);
-//         socket.emit('progressData', []);
-//       }
-//     });
-
-//     // Handle receiving new workout data
-//     socket.on('newWorkout', async (workoutData) => {
-//       try {
-//         const newWorkout = new Workout(workoutData);
-//         await newWorkout.save();
-//         io.emit('updateProgress', newWorkout); // Broadcast the new workout data to all clients
-//       } catch (error) {
-//         console.error('Error saving workout:', error);
-//       }
-//     });
-
-//     // Handle client disconnection
-//     socket.on('disconnect', () => {
-//       console.log('Client disconnected:', socket.id);
-//     });
-//   });
-
-//   return io;
-// }
-
-// module.exports = setupSocketIO;
+module.exports = socketHandler;

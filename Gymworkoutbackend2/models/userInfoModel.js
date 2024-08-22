@@ -1,3 +1,4 @@
+// UserinfoModel.js
 const mongoose = require('mongoose');
 
 const userInfoSchema = new mongoose.Schema({
